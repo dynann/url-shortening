@@ -3,8 +3,8 @@ export interface IClickTime {
 }
 
 export default interface ILink {
-    id: string 
-    url: string
-    clicks: number
-    clickRecord: IClickTime[]
+    Id: string 
+    Url: string
+    Clicks: number
+    ClickRecord: IClickTime[]
 }

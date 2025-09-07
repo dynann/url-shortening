@@ -3,12 +3,11 @@
 import { useEffect, useState } from "react";
 import { Copy, Link, ExternalLink, Trash2, Plus } from "lucide-react";
 import ILink from "@/type";
+
 export default function URLShortener() {
   const [url, setUrl] = useState("");
   const [urls, setUrls] = useState<ILink[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-
-
 
   useEffect(() => {
     async function getUrls() {
@@ -19,18 +18,25 @@ export default function URLShortener() {
         });
         if (!response.ok) {
           console.error('fail to fetch');
+          return;
         }
         const data = await response.json();
-        console.log(data)
-        setUrls(prev => [data, ...prev]);
+        console.log(data);
+        
+        // Check if data is an array or a single object
+        if (Array.isArray(data)) {
+          setUrls(data);
+        } else {
+          // If it's a single object, wrap it in an array
+          setUrls([data]);
+        }
       } catch (error) {
-        // Optionally handle error here
-        console.log(error)
+        console.log(error);
+        setUrls([]); // Ensure urls is always an array
       }
     }
     getUrls();
   }, []);
-
 
   const handleShorten = async () => {
     if (!url.trim()) return;
@@ -38,14 +44,14 @@ export default function URLShortener() {
     setIsLoading(true);
     
     try {
-      // await new Promise(resolve => setTimeout(resolve, 1000)); // Simulated delay
       const response = await fetch('http://localhost:8080/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: url })
       });
       const data = await response.json();
       
+      // Add the new URL to the beginning of the array
       setUrls(prev => [data, ...prev]);
       setUrl("");
     } catch (error) {
@@ -55,7 +61,7 @@ export default function URLShortener() {
     }
   };
 
-  const copyToClipboard = async (text: any) => {
+  const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
     } catch (err) {
@@ -63,15 +69,22 @@ export default function URLShortener() {
     }
   };
 
-  const deleteUrl = (id: any) => {
-    setUrls(prev => prev.filter(item => item.id !== id));
+  const deleteUrl = (id: string) => {
+    setUrls(prev => prev.filter(item => item.Id !== id));
   };
 
-  const handleKeyPress = (e: any) => {
+  const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       handleShorten();
     }
   };
+
+  const printObject = () => {
+    console.log(urls)
+    urls.map((item) => {
+      console.log(item.Id, item.Url, item.Clicks)
+    })
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
@@ -135,7 +148,7 @@ export default function URLShortener() {
             </div>
           </div>
 
-           {urls.length === 0 ? (
+          {urls.length === 0 ? (
             <div className="text-center py-12">
               <div className="bg-gray-100 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
                 <Link className="w-8 h-8 text-gray-400" />
@@ -146,23 +159,23 @@ export default function URLShortener() {
           ) : (
             <div className="space-y-4">
               {urls.map((item, index) => (
-                <div key={item.id} className="border border-gray-200 rounded-xl p-6 hover:shadow-md transition-shadow duration-200">
+                <div key={`${item.Id}-${index}`} className="border border-gray-200 rounded-xl p-6 hover:shadow-md transition-shadow duration-200">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2">
                         <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
                           #{index + 1}
                         </span>
-                        <span className="text-xs text-gray-500">{item.clicks} clicks</span>
+                        <span className="text-xs text-gray-500">{item.Clicks} clicks</span>
                       </div>
                       
                       {/* Original URL */}
                       <div className="mb-3">
                         <p className="text-sm text-gray-500 mb-1">Original URL:</p>
                         <div className="flex items-center gap-2 group">
-                          <p className="text-gray-700 truncate text-sm">{item.url}</p>
+                          <p className="text-gray-700 truncate text-sm">{item.Url}</p>
                           <button
-                            onClick={() => window.open(item.url, '_blank')}
+                            onClick={() => window.open(item.Url, '_blank')}
                             className="opacity-0 group-hover:opacity-100 transition-opacity"
                           >
                             <ExternalLink className="w-4 h-4 text-gray-400 hover:text-blue-500" />
@@ -174,16 +187,16 @@ export default function URLShortener() {
                       <div>
                         <p className="text-sm text-gray-500 mb-1">Short URL:</p>
                         <div className="flex items-center gap-2">
-                          <p className="text-blue-600 font-medium text-sm">{item.id}</p>
+                          <p className="text-blue-600 font-medium text-sm">{item.Id}</p>
                           <button
-                            onClick={() => copyToClipboard(item.id)}
+                            onClick={() => copyToClipboard(item.Id)}
                             className="p-1 hover:bg-gray-100 rounded transition-colors"
                             title="Copy to clipboard"
                           >
                             <Copy className="w-4 h-4 text-gray-400 hover:text-blue-500" />
                           </button>
                           <button
-                            onClick={() => window.open(item.id, '_blank')}
+                            onClick={() => window.open(item.Id, '_blank')}
                             className="p-1 hover:bg-gray-100 rounded transition-colors"
                             title="Open in new tab"
                           >
@@ -194,7 +207,14 @@ export default function URLShortener() {
                     </div>
 
                     <button
-                      onClick={() => deleteUrl(item.id)}
+                      onClick={() => deleteUrl(item.Id)}
+                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Delete URL"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => printObject()}
                       className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                       title="Delete URL"
                     >
