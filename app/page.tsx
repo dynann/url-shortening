@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Copy, Link, ExternalLink, Trash2, Plus } from "lucide-react";
 import { ILink } from "@/type";
+import { stringify } from "querystring";
 
 export default function URLShortener() {
   const [url, setUrl] = useState("");
@@ -99,6 +100,7 @@ export default function URLShortener() {
       handleShorten();
     }
   };
+
 
   // const printObject = () => {
   //   console.log(urls);
@@ -214,7 +216,7 @@ export default function URLShortener() {
                             {item.Url}
                           </p>
                           <button
-                            onClick={() => window.open(item.Url,'_blank')}
+                            onClick={() => window.open(item.Url, '_blank')}
                             className=""
                             title="Open in new tab"
                           >
@@ -238,7 +240,7 @@ export default function URLShortener() {
                             <Copy className="w-4 h-4 text-gray-400 hover:text-blue-500" />
                           </button>
                           <button
-                            onClick={() => window.open(item.Url,'_blank')}
+                            onClick={() => window.open(`http://localhost:8080/${item.Id}`, "_blank")}
                             className="p-1 hover:bg-gray-100 rounded transition-colors"
                             title="Open in new tab"
                           >
