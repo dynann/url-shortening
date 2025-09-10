@@ -2,7 +2,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Copy, Link, ExternalLink, Trash2, Plus } from "lucide-react";
-import ILink from "@/type";
+import { ILink } from "@/type";
 
 export default function URLShortener() {
   const [url, setUrl] = useState("");
@@ -57,6 +57,31 @@ export default function URLShortener() {
     }
   };
 
+  const handleDelete = async (id: string) => {
+    // console.log("clicked")
+    if(!id.trim()) return
+
+
+    try {
+      const response = await fetch(`http://localhost:8080/${id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      })
+
+      const data: ILink[] = await response.json()
+      console.log(data)
+      if(!response.ok) {
+        console.log("fail to delete")
+        return
+      }
+      setUrls(data)
+      // console.log(data.Message)
+      alert("delete successfully")
+    } catch (err: any) {
+      console.error(err)
+    }
+  }
+
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -65,9 +90,9 @@ export default function URLShortener() {
     }
   };
 
-  const deleteUrl = (id: string) => {
-    setUrls((prev) => prev.filter((item) => item.Id !== id));
-  };
+  // const deleteUrl = (id: string) => {
+  //   setUrls((prev) => prev.filter((item) => item.Id !== id));
+  // };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
@@ -75,12 +100,12 @@ export default function URLShortener() {
     }
   };
 
-  const printObject = () => {
-    console.log(urls);
-    urls.map((item) => {
-      console.log(item.Id, item.Url, item.Clicks);
-    });
-  };
+  // const printObject = () => {
+  //   console.log(urls);
+  //   urls.map((item) => {
+  //     console.log(item.Id, item.Url, item.Clicks);
+  //   });
+  // };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
@@ -224,19 +249,19 @@ export default function URLShortener() {
                     </div>
 
                     <button
-                      onClick={() => deleteUrl(item.Id)}
+                      onClick={() => handleDelete(item.Id)}
                       className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                       title="Delete URL"
                     >
                       <Trash2 className="w-5 h-5" />
                     </button>
-                    <button
+                    {/* <button
                       onClick={() => printObject()}
                       className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                       title="Delete URL"
                     >
                       <Trash2 className="w-5 h-5" />
-                    </button>
+                    </button> */}
                   </div>
                 </div>
               ))}

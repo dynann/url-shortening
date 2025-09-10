@@ -2,9 +2,13 @@ export interface IClickTime {
     date: Date
 }
 
-export default interface ILink {
+export interface ILink {
     Id: string 
     Url: string
     Clicks: number
-    ClickRecord: IClickTime[]
+    ClickRecord?: IClickTime[]
+}
+
+export interface IResponse {
+    Message?: string
 }
