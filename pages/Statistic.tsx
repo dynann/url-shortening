@@ -30,6 +30,7 @@ interface UrlStats {
 
 export default function UrlStatisticsPage({ id }: { id: string }) {
   const [link, setLink] = useState<ILink>();
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   useEffect(() => {
     async function getUrls() {
       try {
@@ -263,7 +264,7 @@ export default function UrlStatisticsPage({ id }: { id: string }) {
               className="flex items-end justify-between gap-2 mb-4"
               style={{ height: `${chartHeight + 20}px` }}
             >
-              {stats.hourlyData.map((data, index) => {
+              {stats.hourlyData.map((data, index: number) => {
                 const barHeight = getBarHeight(data.clicks);
                 const isHighlighted =
                   data.clicks === maxClicks && data.clicks > 0;
@@ -272,11 +273,13 @@ export default function UrlStatisticsPage({ id }: { id: string }) {
                   <div
                     key={index}
                     className="flex flex-col items-center flex-1 relative"
+                    onMouseEnter={() => setHoveredIndex(index)}
+                    onMouseLeave={() => setHoveredIndex(null)}
                   >
                     {/* Click count label */}
                     {data.clicks > 0 && (
                       <div className="absolute -top-6 text-xs font-medium text-gray-700">
-                        {data.clicks} clicks
+                        {hoveredIndex === index && data.clicks}
                       </div>
                     )}
 
