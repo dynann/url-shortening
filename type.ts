@@ -1,12 +1,14 @@
+import { Dayjs } from "dayjs"
+
 export interface IClickTime {
-    date: Date
+    date: Dayjs
 }
 
 export interface ILink {
-    Id: string 
-    Url: string
-    Clicks: number
-    ClickRecord?: IClickTime[]
+    id: string 
+    url: string
+    clicks: number
+    click_records?: IClickTime[]
 }
 
 export interface IResponse {
