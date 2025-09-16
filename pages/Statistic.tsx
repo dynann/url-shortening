@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import React, { useEffect, useState } from "react";
 import {
@@ -12,29 +13,18 @@ import {
   Copy,
   Activity,
 } from "lucide-react";
-import { IClickTime, ILink } from "@/type";
 import { countClicks } from "@/utils/utils";
+import { IHourData, ILink } from "@/type";
 
-interface HourlyData {
-  hour: string;
-  clicks: number;
-}
-
-interface UrlStats {
-  shortUrl: string;
-  originalUrl: string;
-  totalClicks: number;
-  todayClicks: number;
-  hourlyData: HourlyData[];
-}
 
 export default function UrlStatisticsPage({ id }: { id: string }) {
   const [link, setLink] = useState<ILink>();
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [hourData, setHourData] = useState<IHourData[]>([])
   useEffect(() => {
     async function getUrls() {
       try {
-        const response = await fetch(`http://localhost:8080/links/${id}`, {
+        const response = await fetch(`${process.env.API_URL}/links/${id}`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
@@ -49,40 +39,29 @@ export default function UrlStatisticsPage({ id }: { id: string }) {
         alert("fail to fetch");
       }
     }
+    async function getClicks() {
+      try {
+        const response = await fetch(
+          `${process.env.API_URL}/links/clicks-hour/${id}`,
+          {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+        const data = await response.json();
+        if (!data.data.data) {
+          alert("error");
+          return;
+        }
+        setHourData(data.data.data)
+      } catch (error) {
+        console.error("Failed to shorten URL:", error);
+      }
+    }
     getUrls();
+    getClicks()
   }, []);
-  const [stats, setStats] = useState<UrlStats>({
-    shortUrl: "short.ly/abc123",
-    originalUrl: "https://www.example.com/very-long-url-path-here",
-    totalClicks: 1247,
-    todayClicks: 89,
-    hourlyData: [
-      { hour: "12:00", clicks: 15 },
-      { hour: "1:00", clicks: 8 },
-      { hour: "2:00", clicks: 36 },
-      { hour: "3:00", clicks: 22 },
-      { hour: "4:00", clicks: 8 },
-      { hour: "5:00", clicks: 0 },
-      { hour: "6:00", clicks: 0 },
-      { hour: "7:00", clicks: 0 },
-      { hour: "8:00", clicks: 0 },
-      { hour: "9:00", clicks: 0 },
-      { hour: "10:00", clicks: 0 },
-      { hour: "11:00", clicks: 0 },
-      { hour: "12:00", clicks: 0 },
-      { hour: "1:00", clicks: 8 },
-      { hour: "2:00", clicks: 36 },
-      { hour: "3:00", clicks: 22 },
-      { hour: "4:00", clicks: 8 },
-      { hour: "5:00", clicks: 0 },
-      { hour: "6:00", clicks: 0 },
-      { hour: "7:00", clicks: 0 },
-      { hour: "8:00", clicks: 0 },
-      { hour: "9:00", clicks: 0 },
-      { hour: "10:00", clicks: 0 },
-      { hour: "11:00", clicks: 0 },
-    ],
-  });
+
 
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const goToPreviousDay = () => {
@@ -116,7 +95,7 @@ export default function UrlStatisticsPage({ id }: { id: string }) {
     }
   };
 
-  const maxClicks = Math.max(...stats.hourlyData.map((d) => d.clicks));
+  const maxClicks = Math.max(...hourData.map((d) => d.Click));
   const chartHeight = 200;
 
   const getBarHeight = (clicks: number): number => {
@@ -172,7 +151,7 @@ export default function UrlStatisticsPage({ id }: { id: string }) {
                 </button>
                 <button
                   onClick={() =>
-                    copyToClipboard(`http://localhost:8080/${link!.id}`)
+                    copyToClipboard(`${process.env.API_URL}/${link!.id}`)
                   }
                   className="p-1 hover:bg-gray-100 rounded transition-colors"
                   title="Copy to clipboard"
@@ -232,7 +211,10 @@ export default function UrlStatisticsPage({ id }: { id: string }) {
                   </div>
                 ) : (
                   <div>
-                    <p className="text-2xl font-bold text-gray-900">{countClicks(link?.click_records)}</p></div>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {countClicks(link?.click_records)}
+                    </p>
+                  </div>
                 )}
 
                 <p className="text-sm text-gray-600">Today&apos;s Clicks</p>
@@ -264,10 +246,10 @@ export default function UrlStatisticsPage({ id }: { id: string }) {
               className="flex items-end justify-between gap-2 mb-4"
               style={{ height: `${chartHeight + 20}px` }}
             >
-              {stats.hourlyData.map((data, index: number) => {
-                const barHeight = getBarHeight(data.clicks);
+              {hourData.map((data, index: number) => {
+                const barHeight = getBarHeight(data.Click);
                 const isHighlighted =
-                  data.clicks === maxClicks && data.clicks > 0;
+                  data.Click === maxClicks && data.Click > 0;
 
                 return (
                   <div
@@ -277,9 +259,9 @@ export default function UrlStatisticsPage({ id }: { id: string }) {
                     onMouseLeave={() => setHoveredIndex(null)}
                   >
                     {/* Click count label */}
-                    {data.clicks > 0 && (
+                    {data.Click > 0 && (
                       <div className="absolute -top-6 text-xs font-medium text-gray-700">
-                        {hoveredIndex === index && data.clicks}
+                        {hoveredIndex === index && data.Click}
                       </div>
                     )}
 
@@ -288,14 +270,14 @@ export default function UrlStatisticsPage({ id }: { id: string }) {
                       className={`w-full max-w-12 transition-all duration-300 hover:opacity-80 ${
                         isHighlighted
                           ? "bg-blue-600"
-                          : data.clicks > 0
+                          : data.Click > 0
                           ? "bg-blue-400"
                           : "bg-gray-200"
                       }`}
                       style={{
                         height: `${Math.max(
                           barHeight,
-                          data.clicks > 0 ? 8 : 4
+                          data.Click > 0 ? 8 : 4
                         )}px`,
                         marginBottom: "4px",
                       }}
@@ -307,9 +289,9 @@ export default function UrlStatisticsPage({ id }: { id: string }) {
 
             {/* X-axis labels */}
             <div className="flex justify-between text-xs text-gray-600 border-t pt-2">
-              {stats.hourlyData.map((data, index) => (
+              {hourData.map((data, index) => (
                 <div key={index} className="flex-1 text-center">
-                  {data.hour}
+                  {data.Hour}
                 </div>
               ))}
             </div>

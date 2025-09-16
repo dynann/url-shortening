@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useEffect, useState } from "react";
@@ -80,7 +81,6 @@ export default function URLShortener() {
         headers: { "Content-Type": "application/json" },
       });
 
-      const data = await response.json();
       window.location.reload();
       if (!response.ok) {
         console.log("fail to delete");
