@@ -15,16 +15,18 @@ import {
 } from "lucide-react";
 import { countClicks } from "@/utils/utils";
 import { IHourData, ILink } from "@/type";
-
+// import dotenv from "dotenv"
+// dotenv.config()
 
 export default function UrlStatisticsPage({ id }: { id: string }) {
   const [link, setLink] = useState<ILink>();
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [hourData, setHourData] = useState<IHourData[]>([])
+  const API_URL = process.env.NEXT_PUBLIC_API_URL 
   useEffect(() => {
     async function getUrls() {
       try {
-        const response = await fetch(`${process.env.API_URL}/links/${id}`, {
+        const response = await fetch(`${API_URL}/links/${id}`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
@@ -42,7 +44,7 @@ export default function UrlStatisticsPage({ id }: { id: string }) {
     async function getClicks() {
       try {
         const response = await fetch(
-          `${process.env.API_URL}/links/clicks-hour/${id}`,
+          `${API_URL}/links/clicks-hour/${id}`,
           {
             method: "GET",
             headers: { "Content-Type": "application/json" },
