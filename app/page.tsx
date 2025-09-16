@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useEffect, useState } from "react";
@@ -11,17 +12,20 @@ import {
 } from "lucide-react";
 import { ILink } from "@/type";
 import { useRouter } from "next/navigation";
+// import dotenv from "dotenv"
+// dotenv.config()
 
 export default function URLShortener() {
   const [url, setUrl] = useState("");
   const [urls, setUrls] = useState<ILink[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-
+  const API_URL: string | undefined = process.env.NEXT_PUBLIC_API_URL
+  // console.log(API_URL)
   const router = useRouter()
   useEffect(() => {
     async function getUrls() {
       try {
-        const response = await fetch("http://localhost:8080/links", {
+        const response = await fetch(`${API_URL}/links`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
@@ -51,7 +55,7 @@ export default function URLShortener() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8080/links", {
+      const response = await fetch(`${API_URL}/links`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: url }),
@@ -75,12 +79,11 @@ export default function URLShortener() {
     if (!Id.trim()) return;
 
     try {
-      const response = await fetch(`http://localhost:8080/links/${Id}`, {
+      const response = await fetch(`${API_URL}/links/${Id}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
       });
 
-      const data = await response.json();
       window.location.reload();
       if (!response.ok) {
         console.log("fail to delete");
@@ -240,7 +243,7 @@ export default function URLShortener() {
                           <button
                             onClick={() =>
                               copyToClipboard(
-                                `http://localhost:8080/${item?.id}`
+                                `${API_URL}/${item?.id}`
                               )
                             }
                             className="p-1 hover:bg-gray-100 rounded transition-colors"
@@ -251,7 +254,7 @@ export default function URLShortener() {
                           <button
                             onClick={() =>
                               window.open(
-                                `http://localhost:8080/links/redirect/${item?.id}`,
+                                `${process.env.API_URL}/links/redirect/${item?.id}`,
                                 "_blank"
                               )
                             }

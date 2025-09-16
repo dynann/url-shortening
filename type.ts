@@ -14,3 +14,8 @@ export interface ILink {
 export interface IResponse {
     Message?: string
 }
+
+export interface IHourData {
+    Hour: number
+    Click: number
+}
