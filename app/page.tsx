@@ -254,7 +254,7 @@ export default function URLShortener() {
                           <button
                             onClick={() =>
                               window.open(
-                                `${process.env.API_URL}/links/redirect/${item?.id}`,
+                                `${API_URL}/links/redirect/${item?.id}`,
                                 "_blank"
                               )
                             }
