@@ -36,7 +36,7 @@ export default function UrlStatisticsPage({ id }: { id: string }) {
         }
         const data = await response.json();
         setLink(data.data.data);
-        console.log(link);
+        // console.log(link);
       } catch {
         alert("fail to fetch");
       }
@@ -65,16 +65,41 @@ export default function UrlStatisticsPage({ id }: { id: string }) {
   }, []);
 
 
+  async function fetchDateAPI(id: string, day: string) {
+    try {
+      const response = await fetch(
+        `${API_URL}/links/clicks-hour-date/${id}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({date: day})
+        }
+      );
+      const data = await response.json()
+      if (!data.data.data) {
+        alert("error")
+        return
+      }
+      setHourData(data.data.data)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const goToPreviousDay = () => {
     const newDate = new Date(selectedDate);
     newDate.setDate(newDate.getDate() - 1);
+    console.log("previous date ==",newDate.toISOString())
+    fetchDateAPI(id, newDate.toISOString())
     setSelectedDate(newDate);
   };
 
   const goToNextDay = () => {
     const newDate = new Date(selectedDate);
     newDate.setDate(newDate.getDate() + 1);
+    console.log("next date ==",newDate.toISOString())
+    fetchDateAPI(id, newDate.toISOString())
     setSelectedDate(newDate);
     // In real app, you would fetch new data here based on newDate
   };
