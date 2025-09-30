@@ -40,7 +40,7 @@ export default function URLShortener() {
         } else {
           setUrls([data.data.data]);
         }
-        console.log("==>", urls.length)
+        // console.log("==>", urls.length)
       } catch (error) {
         console.log(error);
         setUrls([]);
@@ -86,7 +86,7 @@ export default function URLShortener() {
 
       window.location.reload();
       if (!response.ok) {
-        console.log("fail to delete");
+        // console.log("fail to delete");
         return;
       }
       // console.log(data.Message)
@@ -98,7 +98,7 @@ export default function URLShortener() {
 
   const copyToClipboard = async (text: string) => {
     try {
-      console.log(urls);
+      // console.log(urls);
       await navigator.clipboard.writeText(text);
     } catch (err) {
       console.error("Failed to copy:", err);
@@ -106,7 +106,7 @@ export default function URLShortener() {
   };
 
   const handleDynamic = async (id: string) => {
-    console.log(id)
+    // console.log(id)
     router.push(`statistic/${id}`)
   }
 
